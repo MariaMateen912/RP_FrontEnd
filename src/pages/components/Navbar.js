@@ -1,58 +1,88 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
-import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
-import IconButton from '@mui/material/IconButton';
-import { useState } from 'react';
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import Box from '@mui/material/Box';
+import { useRouter } from 'next/router';
 
 const Navbar = () => {
-  const [anchorEl, setAnchorEl] = useState(null);
+  const [registrationType, setRegistrationType] = useState(null);
+  const router = useRouter();
 
-  const handleMenuClick = (event) => {
-    setAnchorEl(event.currentTarget);
+  const handleMSPNavigation = () => {
+    router.push('/farmer/mspForm'); 
+  };
+  
+  const handleAuctionNavigation = () => {
+    router.push('/farmer/AuctionForm'); 
+  };
+  
+  const handleVCalNavigation = () => {
+    router.push('/farmer/VCalendar'); 
+  };
+  
+  const handleFBidNavigation = () => {
+    router.push('/farmer/BidsTable'); 
+  };
+  
+  const handleBidNavigation = () => {
+    router.push('/buyer/AuctionTable'); 
+  };
+  
+  const handleVCalenNavigation = () => {
+    router.push('/buyer/VCalendar'); 
   };
 
-  const handleMenuClose = () => {
-    setAnchorEl(null);
+  const handleFCalNavigation = () => {
+    router.push('/mandiBoard/FCalendar'); 
   };
+
+  const handleUserNavigation = () => {
+    router.push('/mandiBoard/user'); 
+  };
+
+  useEffect(() => {
+    // Retrieve registration type from localStorage
+    const storedUserType = localStorage.getItem('registrationType');
+    setRegistrationType(storedUserType);
+  }, []);
 
   return (
     <AppBar position="static" style={{ backgroundColor: '#4CAF50' }}>
-      <Toolbar>
-        <Typography variant="h6" style={{ flexGrow: 1 }}>
-          Home
-        </Typography>
-        <Button color="inherit">e-NAM Mandis</Button>
-
-        <Button
-          color="inherit"
-          onClick={handleMenuClick}
-          endIcon={<ArrowDropDownIcon />}
-        >
-          Stakeholders
-        </Button>
-        <Menu
-          anchorEl={anchorEl}
-          open={Boolean(anchorEl)}
-          onClose={handleMenuClose}
-        >
-          <MenuItem onClick={handleMenuClose}>Option 1</MenuItem>
-          <MenuItem onClick={handleMenuClose}>Option 2</MenuItem>
-          <MenuItem onClick={handleMenuClose}>Option 3</MenuItem>
-        </Menu>
-
-        <Button color="inherit">Aspirational Districts</Button>
-        <Button color="inherit">Dashboard</Button>
-        <Button color="inherit">eLearning Videos</Button>
-        <Button color="inherit">e-NAM Logistics</Button>
-        <Button color="inherit">Resources</Button>
-        <Button color="inherit">Events Gallery</Button>
-        <Button color="inherit">Contact Us</Button>
-        <Button color="inherit">Kisan Rath</Button>
+      <Toolbar style={{ justifyContent: 'center' }}>
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <Button color="inherit">e-NAM Mandis</Button>
+          {!registrationType ? (
+            <>
+              <Button color="inherit" onClick={handleVCalNavigation}>VCal</Button>
+              <Button color="inherit" onClick={handleUserNavigation}>User</Button>
+            </>
+          ) : (
+            <>
+              {registrationType === 'Farmer' && (
+                <>
+                  <Button color="inherit" onClick={handleMSPNavigation}>MSP Form</Button>
+                  <Button color="inherit" onClick={handleAuctionNavigation}>Auction Form</Button>
+                  <Button color="inherit" onClick={handleFBidNavigation}>Bid Table</Button>
+                  <Button color="inherit" onClick={handleVCalNavigation}>My Calendar</Button>
+                </>
+              )}
+              {registrationType === 'Buyer' && (
+                <>
+                  <Button color="inherit" onClick={handleBidNavigation}>Auction Table</Button>
+                  <Button color="inherit" onClick={handleVCalenNavigation}>My Calendar</Button>
+                </>
+              )}
+              {registrationType === 'Mandi Board' && (
+                <>
+                  <Button color="inherit" onClick={handleFCalNavigation}>Calendar</Button>
+                  <Button color="inherit" onClick={handleUserNavigation}>User</Button>
+                </>
+              )}
+            </>
+          )}
+        </Box>
       </Toolbar>
     </AppBar>
   );
