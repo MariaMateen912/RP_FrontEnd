@@ -3,11 +3,17 @@ import { Container, Typography, Grid, Card, CardContent } from '@mui/material';
 import axios from 'axios';
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#FF6384', '#36A2EB', '#FFCE56'];
+const COLORS = [
+  '#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#FF6384', 
+  '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40',
+  '#61C0BF', '#6B5B95', '#FF6F61', '#6B4226', '#BC243C',
+  '#34568B', '#FF7F50', '#2E8B57', '#4682B4', '#8A2BE2'
+];
 
 const UserStatsPage = () => {
   const [groupedStats, setGroupedStats] = useState({});
   const [chartData, setChartData] = useState([]);
+  const [zeroUserStates, setZeroUserStates] = useState([]);
 
   useEffect(() => {
     const fetchUserStats = async () => {
@@ -25,13 +31,24 @@ const UserStatsPage = () => {
 
         setGroupedStats(groupedData);
 
-        // Prepare data for Pie Chart
-        const chartData = Object.entries(groupedData).map(([state, types]) => ({
-          name: state,
-          value: (types.Farmer || 0) + (types.Buyer || 0),
-        }));
-        
+        // Prepare data for Pie Chart and separate out states with 0 users
+        const chartData = [];
+        const zeroUserStates = [];
+
+        Object.entries(groupedData).forEach(([state, types]) => {
+          const totalUsers = (types.Farmer || 0) + (types.Buyer || 0);
+          if (totalUsers > 0) {
+            chartData.push({
+              name: state,
+              value: totalUsers,
+            });
+          } else {
+            zeroUserStates.push(state);
+          }
+        });
+
         setChartData(chartData);
+        setZeroUserStates(zeroUserStates);
       } catch (error) {
         console.error('Error fetching user stats:', error);
       }
@@ -86,6 +103,18 @@ const UserStatsPage = () => {
           </Grid>
         ))}
       </Grid>
+
+      {/* List of States with 0 Users */}
+      {zeroUserStates.length > 0 && (
+        <Typography variant="h6" gutterBottom style={{ marginTop: '2rem' }}>
+          States with No User Registrations:
+        </Typography>
+      )}
+      {zeroUserStates.map((state, index) => (
+        <Typography key={index} variant="body1">
+          {state}
+        </Typography>
+      ))}
     </Container>
   );
 };
